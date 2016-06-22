@@ -7,6 +7,45 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:annotation-config />
-	<context:component-scan base-package="org.greg.resteasy" />
+	<context:component-scan base-package="org.apimail" />
 
+	<beans:bean id="com.mongodb.MongoClient" class="com.mongodb.MongoClient">
+		<beans:constructor-arg index="0" value="localhost" /> <!-- host -->
+		<beans:constructor-arg index="1" value="32768" /> <!-- port -->
+	</beans:bean>
+
+	<beans:bean id="org.apimail.dao.MongoDAO" class="org.apimail.dao.MongoDAO" init-method="init">
+		<beans:property name="mongoClient" ref="com.mongodb.MongoClient" />
+		<beans:property name="database" value="test" />
+		<beans:property name="collection" value="mail" />
+	</beans:bean>
+	
+	<beans:bean id="org.apimail.smtp.MongoMailListener" class="org.apimail.smtp.MongoMailListener">
+		<beans:property name="mongoDao" ref="org.apimail.dao.MongoDAO" />
+	</beans:bean>
+	
+	<beans:bean id="org.apimail.smtp.SMTPAuthHandlerFactory" class="org.apimail.smtp.SMTPAuthHandlerFactory" />
+
+	<beans:bean id="org.subethamail.smtp.helper.SimpleMessageListenerAdapter" class="org.subethamail.smtp.helper.SimpleMessageListenerAdapter">
+		<beans:constructor-arg index="0" ref="org.apimail.smtp.MongoMailListener" />
+	</beans:bean>
+	
+	<beans:bean id="bindAddress" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<beans:property name="targetClass" value="java.net.InetAddress" />
+		<beans:property name="targetMethod" value="getByName" />
+		<beans:property name="arguments" value="0.0.0.0" />
+	</beans:bean>
+	
+	<beans:bean id="org.subethamail.smtp.server.SMTPServer" class="org.subethamail.smtp.server.SMTPServer">
+		<beans:constructor-arg index="0" ref="org.subethamail.smtp.helper.SimpleMessageListenerAdapter" />
+		<beans:constructor-arg index="1" ref="org.apimail.smtp.SMTPAuthHandlerFactory" />
+		
+		<beans:property name="port" value="2048" />
+		<beans:property name="bindAddress" ref="bindAddress" />		
+	</beans:bean>
+	
+	<beans:bean id="org.apimail.smtp.SMTPServerHandler" class="org.apimail.smtp.SMTPServerHandler">
+		<beans:property name="smtpServer" ref="org.subethamail.smtp.server.SMTPServer" />
+	</beans:bean>
+	
 </beans:beans>
