@@ -1,0 +1,119 @@
+<html lang="en">
+<head>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+	crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+	integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r"
+	crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+	crossorigin="anonymous"></script>
+
+<script>
+	$(document).ready(function() {
+		$(document).on("click", '#btnurl', function(event) {
+			getmail($('#mailurl').val());
+		});
+		
+		$(document).on("click", '.nav-btn', function(event) {
+			$('.nav').hide();
+			var index = $(this).attr("index");
+			$('.nav-'+index).show();
+		});
+
+		$(document).on("click", '.list-group-item', function(event) {
+			var index = $(this).attr("index");
+			$('#mailto').val(contents[index].to);
+			$('#mailfrom').val(contents[index].from);
+			$('#mailcontent').val(contents[index].content);
+		});
+	});
+
+	var contents;
+	function getmail(url) {
+		$.get("/mail/" + url, function(data) {
+			contents = data;
+			$('.list-group').empty()
+			var nav = 0;
+			for (var i = 0; i < data.length; i++) {
+				console.log(data[i]);
+			
+				$('.list-group').append(
+						'<button type="button" class="list-group-item nav nav-' + nav + '" index="' + i + '">'
+								+ data[i].subject + '</button>');
+				if ((i+1)%5 == 0) {
+					nav ++;
+					$('.pagination').append('<li class="enabled"><a href="#" class="nav-btn" index="'+nav+'">' + (nav+1) + '</a></li>');
+
+				}
+			}
+			$('.nav').hide();
+			$('.nav-0').show();
+			$('#mailto').val(data[0].to);
+			$('#mailfrom').val(data[0].from);
+			$('#mailcontent').val(data[0].content);
+		});
+	}
+</script>
+</head>
+
+<body>
+	<div class="container">
+
+		<div class="row">
+			<div class="col-md-8 coll-md-offset4">
+				<label for="basic-url">url</label>
+				<div class="input-group">
+					<input id="mailurl" type="text" class="form-control"
+						placeholder="last"> <span class="input-group-btn">
+						<button id="btnurl" class="btn btn-default" type="button">Go!</button>
+					</span>
+				</div>
+				<label for="basic-url">From</label>
+				<div class="input-group">
+					<span class="input-group-addon" id="basic-addon1">@</span> <input
+						id="mailfrom" type="text" class="form-control"
+						placeholder="Username" aria-describedby="basic-addon1">
+				</div>
+
+				<label for="basic-url">To</label>
+				<div class="input-group">
+					<span class="input-group-addon" id="basic-addon1"> <span
+						class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span> <input
+						id="mailto" type="text" class="form-control"
+						placeholder="Username" aria-describedby="basic-addon1">
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-4">
+				<label for="basic-url">Mails</label>
+				<nav>
+					<ul class="pagination">
+						<li class="enabled"><a href="#"  class="nav-btn" index="0">1</a></li>
+					</ul>
+				</nav>
+				<div class="list-group"></div>
+			</div>
+
+			<div class="col-md-8 coll-md-offset4">
+				<label for="basic-url">Content</label>
+				<textarea id="mailcontent" class="form-control" rows="25"></textarea>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
