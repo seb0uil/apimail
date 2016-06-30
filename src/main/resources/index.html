@@ -44,7 +44,10 @@
 	function getmail(url) {
 		$.get("/mail/" + url, function(data) {
 			contents = data;
-			$('.list-group').empty()
+			$('.list-group').empty();
+			$('.pagination').empty();
+			$('.pagination').append('<li class="enabled"><a href="#" class="nav-btn" index="0">1</a></li>');
+
 			var nav = 0;
 			for (var i = 0; i < data.length; i++) {
 				console.log(data[i]);
