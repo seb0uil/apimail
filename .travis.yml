@@ -11,11 +11,3 @@ install: /bin/true
 script:
  - mvn clean install -B
 
-deploy:
-  provider: releases
-  api_key: $GITHUB_AUTH_TOKEN
-  file: target/apimail-1.0.0.jar
-  skip_cleanup: true
-  on:
-    tags: true
-    master: true
